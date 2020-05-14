@@ -49,6 +49,43 @@ from m5.objects import *
 from .Caches import *
 from common import ObjectList
 
+
+class MITTSOptions:
+    mittsReplenishPeriod=0
+    mittsTimeInterval=0
+    mittsNumBins=0
+    mittsBinCredits= ""
+
+    def __init__(self, filePath):
+        fp = open(filePath)
+        line = fp.readline()
+        linesRead = 1;
+        while line:
+            print(line)
+
+            if linesRead == 1:
+                self.mittsReplenishPeriod = long(line);
+            elif linesRead == 2:
+                self.mittsTimeInterval = long(line);
+            elif linesRead == 3:
+                self.mittsNumBins = int(line);
+            elif linesRead == 4:
+                self.mittsBinCredits = line;
+
+            linesRead += 1;
+            line = fp.readline()
+
+        fp.close()
+
+    def getReplenishPeriod(self):
+        return self.mittsReplenishPeriod
+    def getTimeInterval(self):
+        return self.mittsTimeInterval
+    def getNumBins(self):
+        return self.mittsNumBins
+    def getBinCredits(self):
+        return self.mittsBinCredits
+
 def config_cache(options, system):
     if options.external_memory_system and (options.caches or options.l2cache):
         print("External caches and internal caches are exclusive options.\n")
@@ -119,12 +156,18 @@ def config_cache(options, system):
 
     for i in range(options.num_cpus):
         if options.caches:
+            if options.MITTS:
+                mittsOpts = MITTSOptions(options.MITTS_File)
+
             icache = icache_class(size=options.l1i_size,
-                                  assoc=options.l1i_assoc,
-                                  mittsEnable=options.MITTS)
+                                  assoc=options.l1i_assoc)
             dcache = dcache_class(size=options.l1d_size,
                                   assoc=options.l1d_assoc,
-                                  mittsEnable=options.MITTS)
+                                  mittsEnable=options.MITTS,
+                                  mittsReplenishPeriod=mittsOpts.getReplenishPeriod(),
+                                  mittsTimeInterval=mittsOpts.getTimeInterval(),
+                                  mittsNumBins=mittsOpts.getNumBins(),
+                                  mittsBinCredits=mittsOpts.getBinCredits())
 
             # If we have a walker cache specified, instantiate two
             # instances here

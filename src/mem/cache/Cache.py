@@ -147,7 +147,11 @@ class BaseCache(ClockedObject):
 class Cache(BaseCache):
     type = 'Cache'
     cxx_header = 'mem/cache/cache.hh'
-    mittsEnable = Param.Bool(False, "Enable MITTS on this cache");
+    mittsEnable = Param.Bool(False, "Enable MITTS on this cache")
+    mittsReplenishPeriod = Param.Unsigned(0, "Cycles between replenishing bins")
+    mittsTimeInterval = Param.Unsigned(0, "Cycles between MITTS bins")
+    mittsNumBins = Param.Unsigned(0, "Number of bins")
+    mittsBinCredits = Param.String("","Credits per bin")
 
 
 class NoncoherentCache(BaseCache):

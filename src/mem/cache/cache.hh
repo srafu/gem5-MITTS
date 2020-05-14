@@ -91,6 +91,11 @@ public:
     Tick updateList(void);
     void replenishBins(void);
     Tick getReplenishTime(void);
+    
+    void setReplenishPeriod(uint64_t);
+    void setTimeInterval(uint64_t);
+    void setNumBins(uint32_t);
+    void setBinCredits(std::string);
 
     ~MITTSController(void);
 private:
@@ -125,6 +130,10 @@ class Cache : public BaseCache
      */
     #ifdef COMPILE_MITTS
     const bool mittsEnable;
+    const uint64_t mittsReplenishPeriod;
+    const uint64_t mittsTimeInterval;
+    const uint32_t mittsNumBins;
+    const std::string mittsBinCredits;
     MITTSController mitts;
     #endif
 

@@ -74,23 +74,54 @@
 #include "params/Cache.hh"
 #include "debug/MITTS.hh"
 
-#define binsPerIdx 3
-
 #ifdef COMPILE_MITTS
 MITTSController::MITTSController(){
-    //DPRINTF(MITTS, "Creating\n");
-
     lastRequestTime = 0;
-    numBins = 3;
-    timeInterval = 100;
-    replenishPeriod = 10000;
-    binCredits = new uint32_t[numBins];
-    binStore = new uint32_t[numBins];
-    for(int i = 0; i < numBins; i++){
-        binCredits[i] = binsPerIdx;
+    numBins = 0;
+    timeInterval = 0;
+    replenishPeriod = 0;
+    binCredits = nullptr;
+    binStore = nullptr;
+}
+
+void MITTSController::setReplenishPeriod(uint64_t replenishPeriod){
+    this->replenishPeriod = replenishPeriod;
+}
+void MITTSController::setTimeInterval(uint64_t timeInterval){
+    this->timeInterval = timeInterval;
+}
+void MITTSController::setNumBins(uint32_t numBins){
+    this->numBins = numBins;
+
+    if(this->binCredits != nullptr)
+        delete this->binCredits;
+    if(this->binStore != nullptr)
+        delete this->binStore;
+
+    this->binCredits = new uint32_t[numBins];
+    this->binStore = new uint32_t[numBins];
+}
+void MITTSController::setBinCredits(std::string binCredits){
+
+    char *cstr = new char[binCredits.length()+1];
+    std::strncpy(cstr, binCredits.c_str(), binCredits.length()+1);
+    
+    char *token = strtok(cstr, " \n\r");
+    int i = 0;
+
+    while(token != NULL){
+        uint32_t credit = (uint32_t) std::stoi(token);
+
+        DPRINTF(MITTS, "Credit %d at bin %d\n", credit, i);
+
+        this->binStore[i] = this->binCredits[i] = credit;
+        token = strtok(NULL, " \n\r");
+        i++;
     }
 
-    replenishBins();
+    this->replenishBins();
+
+    delete cstr;
 }
 
 Tick MITTSController::updateList(){
@@ -219,20 +250,29 @@ uint32_t MITTSController::getBin(uint64_t interArrivalTime){
 MITTSController::~MITTSController(){
     delete binStore;
     delete binCredits; 
-    delete replBins;
 }
 
 #endif
 
 Cache::Cache(const CacheParams *p)
     : BaseCache(p, p->system->cacheLineSize()),
-      doFastWrites(true), mittsEnable(p->mittsEnable)
+      doFastWrites(true), mittsEnable(p->mittsEnable), 
+      mittsReplenishPeriod(p->mittsReplenishPeriod), mittsTimeInterval(p->mittsTimeInterval), 
+      mittsNumBins(p->mittsNumBins), mittsBinCredits(p->mittsBinCredits)
 {
+    DPRINTF(MITTS, "MITTS Enable %d\n", p->mittsEnable);
+    DPRINTF(MITTS, "Replenish Period %d\n", p->mittsReplenishPeriod);
+    DPRINTF(MITTS, "Time Interval %d\n", p->mittsTimeInterval);
+    DPRINTF(MITTS, "Num Bins %d\n", p->mittsNumBins);
+    DPRINTF(MITTS, "Bin Credits %s\n", p->mittsBinCredits);
+
     #ifdef COMPILE_MITTS
-    /*if(mittsEnable){
-        mitts.replBins = new EventFunctionWrapper([this]{ mittsReplenishBins(); }, name(), true);
-        schedule(*(mitts.replBins), mitts.getReplenishTime());
-    }*/
+    if(p->mittsEnable){
+        mitts.setReplenishPeriod(p->mittsReplenishPeriod);
+        mitts.setTimeInterval(p->mittsTimeInterval);
+        mitts.setNumBins(p->mittsNumBins);
+        mitts.setBinCredits(p->mittsBinCredits);
+    }
     #endif
 }
 
@@ -495,19 +535,16 @@ Cache::handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk, Tick forward_time,
                            Tick request_time)
 {
 
-    DPRINTF(MITTS, "handleTimingReqMiss \n");
-    DPRINTF(MITTS, "Intial Forward Time: %ld Request Time: %ld \n", forward_time, request_time);
-
     #ifdef COMPILE_MITTS
     Tick mittsLatency = 0;
     if(mittsEnable){
+        DPRINTF(MITTS, "Intial Forward Time: %ld Request Time: %ld \n", forward_time, request_time);
         mittsLatency = mitts.updateList();
         Tick newForwardTime = mittsLatency + request_time;
         forward_time = (forward_time > newForwardTime ? forward_time : newForwardTime);
+        DPRINTF(MITTS, "MITTS Forward Time: %ld Request Time: %ld \n", forward_time, request_time);
     }
     #endif
-
-    DPRINTF(MITTS, "MITTS Forward Time: %ld Request Time: %ld \n", forward_time, request_time);
 
 
     if (pkt->req->isUncacheable()) {
