@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
         if(omp_get_thread_num()){
             system("gcc testFile0.c -o test0");
         } else {
-            system("gcc testFile1.c -o  test1");
+            system("gcc testFile1.c -o test1");
         }
     }
 

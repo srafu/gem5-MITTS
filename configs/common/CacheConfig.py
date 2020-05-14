@@ -61,8 +61,6 @@ class MITTSOptions:
         line = fp.readline()
         linesRead = 1;
         while line:
-            print(line)
-
             if linesRead == 1:
                 self.mittsReplenishPeriod = long(line);
             elif linesRead == 2:
