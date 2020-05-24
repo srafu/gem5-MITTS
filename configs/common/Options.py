@@ -137,7 +137,8 @@ def addNoISAOptions(parser):
     parser.add_option("--cacheline_size", type="int", default=64)
 
     parser.add_option("--MITTS", action="store_true")
-    parser.add_option("--MITTS_File", type="string", default="configs/MITTS/MITTSParamDefault")
+    parser.add_option("--MITTS_File", type="string", default="configs/MITTS/MITTSParamsDefault")
+    parser.add_option("--multi_prog", action="store_true")
 
     # Enable Ruby
     parser.add_option("--ruby", action="store_true")

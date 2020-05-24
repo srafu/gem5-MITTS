@@ -72,12 +72,24 @@ def get_processes(options):
     """Interprets provided options and returns a list of processes"""
 
     multiprocesses = []
+    workloads = []
     inputs = []
     outputs = []
     errouts = []
     pargs = []
 
-    workloads = options.cmd.split(';')
+    if options.multi_prog:
+        fp = open("configs/MITTS/MITTSWorkload");
+        line = fp.readline();
+        while line:
+            workloads.append(line[:-1]);
+            line = fp.readline();
+
+        fp.close();
+
+    else:
+        workloads = options.cmd.split(';')
+
     if options.input != "":
         inputs = options.input.split(';')
     if options.output != "":
@@ -87,11 +99,15 @@ def get_processes(options):
     if options.options != "":
         pargs = options.options.split(';')
 
+    print(workloads)
+
     idx = 0
     for wrkld in workloads:
         process = Process(pid = 100 + idx)
         process.executable = wrkld
         process.cwd = os.getcwd()
+
+        print(wrkld)
 
         if options.env:
             with open(options.env, 'r') as f:
@@ -158,7 +174,7 @@ if options.bench:
                   (buildEnv['TARGET_ISA'], app),
                   file=sys.stderr)
             sys.exit(1)
-elif options.cmd:
+elif options.cmd or options.multi_prog:
     multiprocesses, numThreads = get_processes(options)
 else:
     print("No workload specified. Exiting!\n", file=sys.stderr)

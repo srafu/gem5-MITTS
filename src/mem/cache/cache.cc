@@ -105,7 +105,7 @@ void MITTSController::setBinCredits(std::string binCredits){
 
     char *cstr = new char[binCredits.length()+1];
     std::strncpy(cstr, binCredits.c_str(), binCredits.length()+1);
-    
+
     char *token = strtok(cstr, " \n\r");
     int i = 0;
 
@@ -149,7 +149,7 @@ Tick MITTSController::updateList(){
         mittsList.push_back(elem);
         DPRINTF(MITTS, "Latency %" PRIu64 "\n", (uint64_t) elem.latency);
         return elem.latency;
-    } 
+    }
 }
 
 void MITTSController::removeListElems(Tick currentTick){
@@ -159,7 +159,7 @@ void MITTSController::removeListElems(Tick currentTick){
         listElem = mittsList.front();
 
         if((listElem.latency + listElem.requestTime) <= currentTick){
-            
+
             for(int i = 0; i < numBins; i++){
                 binStore[i] = listElem.binStore[i];
             }
@@ -249,15 +249,15 @@ uint32_t MITTSController::getBin(uint64_t interArrivalTime){
 
 MITTSController::~MITTSController(){
     delete binStore;
-    delete binCredits; 
+    delete binCredits;
 }
 
 #endif
 
 Cache::Cache(const CacheParams *p)
     : BaseCache(p, p->system->cacheLineSize()),
-      doFastWrites(true), mittsEnable(p->mittsEnable), 
-      mittsReplenishPeriod(p->mittsReplenishPeriod), mittsTimeInterval(p->mittsTimeInterval), 
+      doFastWrites(true), mittsEnable(p->mittsEnable),
+      mittsReplenishPeriod(p->mittsReplenishPeriod), mittsTimeInterval(p->mittsTimeInterval),
       mittsNumBins(p->mittsNumBins), mittsBinCredits(p->mittsBinCredits)
 {
     DPRINTF(MITTS, "MITTS Enable %d\n", p->mittsEnable);
@@ -277,7 +277,7 @@ Cache::Cache(const CacheParams *p)
 }
 
 #ifdef COMPILE_MITTS
-void 
+void
 Cache::mittsReplenishBins(){
     mitts.replenishBins();
     schedule(*(mitts.replBins), curTick() + mitts.getReplenishTime());
@@ -371,7 +371,7 @@ bool
 Cache::access(PacketPtr pkt, CacheBlk *&blk, Cycles &lat,
               PacketList &writebacks)
 {
-    
+
     if (pkt->req->isUncacheable()) {
         assert(pkt->isRequest());
 
