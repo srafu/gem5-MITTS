@@ -54,6 +54,7 @@
 #include "base/trace.hh"
 #include "debug/AddrRanges.hh"
 #include "debug/CoherentXBar.hh"
+#include "debug/MITTSStats.hh"
 #include "sim/system.hh"
 
 CoherentXBar::CoherentXBar(const CoherentXBarParams *p)
@@ -86,6 +87,7 @@ CoherentXBar::CoherentXBar(const CoherentXBarParams *p)
     if (p->port_default_connection_count) {
         defaultPortID = masterPorts.size();
         std::string portName = name() + ".default";
+
         MasterPort* bp = new CoherentXBarMasterPort(portName, *this,
                                                     defaultPortID);
         masterPorts.push_back(bp);
@@ -170,6 +172,8 @@ CoherentXBar::recvTimingReq(PacketPtr pkt, PortID slave_port_id)
     DPRINTF(CoherentXBar, "%s: src %s packet %s\n", __func__,
             src_port->name(), pkt->print());
 
+    if(pkt->req->hasContextId() && (name().compare("system.membus") == 0))
+      DPRINTF(MITTSStats, "Packet Context ID: %x\n", pkt->req->contextId());
     // store size and command as they might be modified when
     // forwarding the packet
     unsigned int pkt_size = pkt->hasData() ? pkt->getSize() : 0;

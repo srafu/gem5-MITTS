@@ -537,7 +537,7 @@ Cache::handleTimingReqMiss(PacketPtr pkt, CacheBlk *blk, Tick forward_time,
 
     #ifdef COMPILE_MITTS
     Tick mittsLatency = 0;
-    if(mittsEnable){
+    if(this->mittsEnable){
         DPRINTF(MITTS, "Intial Forward Time: %ld Request Time: %ld \n", forward_time, request_time);
         mittsLatency = mitts.updateList();
         Tick newForwardTime = mittsLatency + request_time;

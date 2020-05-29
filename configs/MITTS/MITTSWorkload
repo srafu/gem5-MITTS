@@ -1,2 +1,4 @@
-./tests/test-progs/hello/bin/x86/linux/hello1
-./tests/test-progs/hello/bin/x86/linux/hello2
+./fs_stuff/benchmarks/executables/lbm_s_base.mytest-m64
+20 fs_stuff/benchmarks/testfiles/reference.dat 0 1 fs_stuff/benchmarks/testfiles/200_200_260_ldc.of
+./fs_stuff/benchmarks/executables/deepsjeng_s_base.mytest-m64
+fs_stuff/benchmarks/testfiles/deepjeng.txt

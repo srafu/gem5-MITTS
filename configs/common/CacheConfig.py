@@ -159,13 +159,19 @@ def config_cache(options, system):
 
             icache = icache_class(size=options.l1i_size,
                                   assoc=options.l1i_assoc)
-            dcache = dcache_class(size=options.l1d_size,
-                                  assoc=options.l1d_assoc,
-                                  mittsEnable=options.MITTS,
-                                  mittsReplenishPeriod=mittsOpts.getReplenishPeriod(),
-                                  mittsTimeInterval=mittsOpts.getTimeInterval(),
-                                  mittsNumBins=mittsOpts.getNumBins(),
-                                  mittsBinCredits=mittsOpts.getBinCredits())
+
+            if options.MITTS:
+                dcache = dcache_class(size=options.l1d_size,
+                                      assoc=options.l1d_assoc,
+                                      mittsEnable=options.MITTS,
+                                      mittsReplenishPeriod=mittsOpts.getReplenishPeriod(),
+                                      mittsTimeInterval=mittsOpts.getTimeInterval(),
+                                      mittsNumBins=mittsOpts.getNumBins(),
+                                      mittsBinCredits=mittsOpts.getBinCredits())
+            else:
+                dcache = dcache_class(size=options.l1d_size,
+                                      assoc=options.l1d_assoc,
+                                      mittsEnable=options.MITTS)
 
             # If we have a walker cache specified, instantiate two
             # instances here

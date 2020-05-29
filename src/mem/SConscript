@@ -119,6 +119,8 @@ DebugFlag("DRAMSim2")
 DebugFlag('HMCController')
 DebugFlag('SerialLink')
 
+DebugFlag('MITTSStats')
+
 DebugFlag("MemChecker")
 DebugFlag("MemCheckerMonitor")
 DebugFlag("QOS")

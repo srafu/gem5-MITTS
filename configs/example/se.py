@@ -79,11 +79,13 @@ def get_processes(options):
     pargs = []
 
     if options.multi_prog:
-        fp = open("configs/MITTS/MITTSWorkload");
-        line = fp.readline();
+        fp = open("configs/MITTS/MITTSWorkload")
+        line = fp.readline()
         while line:
-            workloads.append(line[:-1]);
-            line = fp.readline();
+            workloads.append(line[:-1])
+            line = fp.readline()
+            pargs.append(line[:-1])
+            line = fp.readline()
 
         fp.close();
 
@@ -290,6 +292,7 @@ else:
     MemClass = Simulation.setMemClass(options)
     system.membus = SystemXBar()
     system.system_port = system.membus.slave
+    system.mmap_using_noreserve = True
     CacheConfig.config_cache(options, system)
     MemConfig.config_mem(options, system)
     config_filesystem(system, options)
